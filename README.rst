@@ -1,4 +1,6 @@
-### Janna's fork ###
+###########
+Janna's fork
+###########
 
 Forked from https://git.ligo.org/lscsoft/ligo.skymap.git for the purpose of extending the plotting options for the ligo-skymap-plot tool.
 
