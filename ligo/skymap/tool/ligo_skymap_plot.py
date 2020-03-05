@@ -45,6 +45,24 @@ def parser():
         '--radec', nargs=2, metavar='deg', type=float, action='append',
         default=[], help='right ascension (deg) and declination (deg) to mark')
     parser.add_argument(
+        '--marker', metavar='MATPLOTLIB_MARKER', default='*', type=str,
+        help='symbol used when marking --radec, has to be matplotlib symbol')
+    parser.add_argument(
+        '--marker-color', metavar='MATPLOTLIB_COLOR', default='white', type=str,
+        help='marker color used for --radec')
+    parser.add_argument(
+        '--marker-ecolor', metavar='MATPLOTLIB_COLOR', default='black', type=str,
+        help='marker edge color used for --radec, has to be matplotlib color string')
+    parser.add_argument(
+        '--marker-size', metavar='SIZE_INT', default=10, type=int,
+        help='marker size used for --radec')
+    parser.add_argument(
+        '--mark-pulsars', metavar='PATH_TO_PULSAR_FILE', default=False, type=str,
+        help='markpulsars from file. Assuming columns ra, dec and rms (noise level).')
+    parser.add_argument(
+        '--max-pulsars', metavar='INT', default=False, type=int,
+        help='only plot first INT pulsars from mark-pulsars file')
+    parser.add_argument(
         '--inj-database', metavar='FILE.sqlite', type=SQLiteType('r'),
         help='read injection positions from database')
     parser.add_argument(
@@ -152,8 +170,31 @@ def main(args=None):
     # Add markers (e.g., for injections or external triggers).
     for ra, dec in radecs:
         ax.plot_coord(
-            SkyCoord(ra, dec, unit='deg'), '*',
-            markerfacecolor='white', markeredgecolor='black', markersize=10)
+            SkyCoord(ra, dec, unit='deg'), 
+            opts.marker,
+            markerfacecolor=opts.marker_color, 
+            markeredgecolor=opts.marker_ecolor,
+            markersize=opts.marker_size)
+        
+    # Add additional markers for points from file
+    if opts.mark_pulsars:
+        try:
+            with open(opts.mark_pulsars, 'r') as f:
+                pulsars = np.loadtxt(f, comments='#')
+                if opts.max_pulsars:
+                    pulsars = pulsars[:opts.max_pulsars]
+                                    
+                for ra, dec, rms in pulsars:
+                    ax.plot_coord(
+                        SkyCoord(ra, dec, unit='deg'), '*', 
+                        markerfacecolor='white', 
+                        markeredgecolor='black',
+                        markersize=10*(rms/1.e-7)**(-0.4)
+                        )
+        except IOError:
+            print('Could not find radec-file, skipping')
+        except ValueError:
+            print('Could not read points from radec-file, skipping')
 
     # Add a white outline to all text to make it stand out from the background.
     plot.outline_text(ax)
