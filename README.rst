@@ -4,6 +4,51 @@ Janna's fork
 
 Forked from https://git.ligo.org/lscsoft/ligo.skymap.git for the purpose of extending the plotting options for the ligo-skymap-plot tool.
 
+The added options allow to modify the marker used in the --radec option (that marks a given RA DEC location). They are:
+
+--marker MATPLOTLIB_MARKER
+                        symbol used when marking --radec, has to be matplotlib
+                        symbol (default: *)
+  --marker-color MATPLOTLIB_COLOR
+                        marker color used for --radec (default: white)
+  --marker-ecolor MATPLOTLIB_COLOR
+                        marker edge color used for --radec, has to be
+                        matplotlib color string (default: black)
+  --marker-size SIZE_INT
+                        marker size used for --radec (default: 10)
+                        
+Additionally, I added options that are specifically useful when making skymaps for PTA (pulsar timing arrays). It marks the locations of pulsars from a text file. The file is assumed to have three columns: RA (deg.), DEC (deg.), RMS. The latter is the (average) noise level for the pulsar, which is used to scale the marker (bigger marker for lower noise pulsars). Pulsars are currently plotted as white stars with black outline (as is the default --radec marker), but the code could be edited to change this (see development notes below). The added options are:
+
+  --mark-pulsars PATH_TO_PULSAR_FILE
+                        markpulsars from file. Assuming columns ra, dec and
+                        rms (noise level). (default: False)
+  --max-pulsars INT     only plot first INT pulsars from mark-pulsars file
+                        (default: False)
+
+
+###########
+Janna's install/development tips
+###########
+
+I installed ligo.skymap into a virtual environment from the repository, which allows developing the code to your own needs. Clone this repository or the original ligo.skymap one, then create a virtual environment and activate it::
+
+   virtualenv my_venv
+   source my_venv/bin/activate
+   
+Install the ligo.skymap requirements (note that I added astroquery to the requirements.txt because it wouldn't work for me without it). You have to be in the repository directory for this and the next step::
+
+   python -m pip install -r requirements.txt
+   
+Install ligo.skymap itself with setup.py::
+
+   python setup.py build install
+   
+Now you can run ligo-skymap-plot (or the other tools), with the additional marker options!
+If you want to make further changes to ligo.skymap code, run the last command to install again. This builds the ligo-skymap-tool anew so it incorporates the changes.
+
+...................Original ligo.skymap readme from here...............
+
+
 ###########
 ligo.skymap
 ###########
